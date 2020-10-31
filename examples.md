@@ -8,7 +8,7 @@ A developer submits a PR for review using the existing backend environment. A ne
 ```
 name: 'Amplify PR Preview'
 on:
-  pull_request:
+  pull_request_target:
     types: [review_requested]
 
 jobs:
@@ -33,9 +33,9 @@ jobs:
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        AmplifyAppId: ${{ secrets.AmplifyAppId }}
+        AmplifyAppId: ${{ secrets.AMPLIFYAPPID }}
         AWS_REGION: 'us-east-1'
-        BackendEnvARN: ${{ secrets.BackendEnvARN }}
+        BackendEnvARN: ${{ secrets.BACKENDENVARN }}
 ```
 
 ### Scenario 2:
@@ -44,7 +44,7 @@ A developer submits a PR for review using a new backend environment. A new PR re
 ```
 name: 'Amplify PR Preview'
 on:
-  pull_request:
+  pull_request_target:
     types: [review_requested]
 
 jobs:
@@ -68,9 +68,9 @@ jobs:
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        AmplifyAppId: ${{ secrets.AmplifyAppId }}
+        AmplifyAppId: ${{ secrets.AMPLIFYAPPID }}
         AWS_REGION: 'us-east-1'
-        BackendEnvARN: ${{ secrets.NewBackendEnvARN }}
+        BackendEnvARN: ${{ secrets.NEWBACKENDENVARN }}
 ```
 
 ### Scenario 3:
@@ -83,7 +83,7 @@ A reviewer finish reviews a PR, does not approve it and the developer closes the
 ```
 name: 'Amplify PR Closed'
 on:
-  pull_request:
+  pull_request_target:
     branches:
       - dev
     types: [closed]
@@ -108,7 +108,7 @@ jobs:
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        AmplifyAppId: ${{ secrets.AmplifyAppId }}
-        BackendEnvARN: ${{ secrets.BackendEnvARN }}
+        AmplifyAppId: ${{ secrets.AMPLIFYAPPID }}
+        BackendEnvARN: ${{ secrets.BACKENDENVARN }}
         AWS_REGION: 'us-east-1'
 ```

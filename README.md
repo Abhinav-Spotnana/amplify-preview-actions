@@ -19,7 +19,7 @@ Place in a `.yml` file such as this one in your `.github/workflows` folder. [Ref
 ```yaml
 name: 'Amplify PR Preview'
 on:
-  pull_request:
+  pull_request_target:
     types: [review_requested]
 
 jobs:
@@ -43,8 +43,8 @@ jobs:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        AmplifyAppId: ${{ secrets.AmplifyAppId }}
-        BackendEnvARN: ${{ secrets.BackendEnvARN }}
+        AmplifyAppId: ${{ secrets.AMPLIFYAPPID }}
+        BackendEnvARN: ${{ secrets.BACKENDENVARN }}
         AWS_REGION: 'us-east-1'
 ```
 
@@ -58,9 +58,47 @@ The following settings must be passed as environment variables as shown in the e
 | `AWS_SECRET_ACCESS_KEY` | Your AWS Secret Access Key. [More info here.](https://docs.aws.amazon.com/general/latest/gr/managing-aws-access-keys.html) | `secret env` | **Yes** | N/A |
 | `AWS_REGION` | The region where you created your bucket. Set to `us-east-1` by default. [Full list of regions here.](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html#concepts-available-regions) | `env` | **Yes** | `us-east-1` |
 | `AmplifyAppId` | The unique ID for an Amplify app. For example, `d6a88fjhifqlks` | `secret env` | **Yes** | N/A |
-| `BackendEnvARN` | The Amazon Resource Name (ARN) for a backend environment that is part of an Amplify app. | `secret env` | **Yes** | N/A |
-| `GITHUB_TOKEN` | The GITHUB_TOKEN, should be supplied if a comment with the preview URL is to be posted on the PR | `github env` | No | N/A |
+| `BackendEnvARN` | The Amazon Resource Name (ARN) for a backend environment that is part of the Amplify app. If the Amplify App has no backend environment, don't set it. | `secret env` | **No** | N/A |
+| `GITHUB_TOKEN` | The `GITHUB_TOKEN`, should be supplied if a comment with the preview URL is to be posted on the PR.  GitHub automatically creates a `GITHUB_TOKEN` secret to use in your workflow. You can use it directly, see [About the GITHUB_TOKEN secret](https://docs.github.com/en/actions/configuring-and-managing-workflows/authenticating-with-the-github_token#about-the-github_token-secret) | `github env` | No | N/A |
 | `NewBackendEnvARN` | The Amazon Resource Name (ARN) for a backend environment that is part of an Amplify app. | `secret env` | No | N/A |
+
+#### AWS_SECRET_ACCESS_KEY & AWS_ACCESS_KEY_ID
+<details>
+  <summary>Click to expand...</summary>
+
+To create these, you'll need to go to [IAM Console](https://console.aws.amazon.com/iam/home)
+
+1. Click on `Users` > `Add User`
+2. Click `Enable Programmatic Access`
+![image](https://user-images.githubusercontent.com/5545980/93388180-28c69900-f81f-11ea-9ab8-69b04c56f81d.png)
+3. On the next screen click `Attach Existing Policies directly` > `Create Policy`
+![image](https://user-images.githubusercontent.com/5545980/93388246-45fb6780-f81f-11ea-9415-7b484a168ae3.png)
+4. Create a policy called `AmplifyPreviewURL` based on the policy shown here: [AWS access keys & IAM Policy](https://github.com/yinlinchen/amplify-preview-actions#aws-access-keys--iam-policy)
+5. Create the user. Copy the `AWS_SECRET_ACCESS_KEY` and `AWS_ACCESS_KEY_ID` to 
+</details>
+
+#### AmplifyAppId
+<details>
+  <summary>Click to expand...</summary>
+  
+  To get the Amplify App ID, go to the [Amplify Console](https://console.aws.amazon.com/amplify/home).
+  
+  1. Navigate to the application and click **General**
+  2. Copy the id from the `App Arn`, it'll look something like `de63t2jjt7llc`
+</details>
+
+#### BackendEnvARN
+
+<details>
+  <summary>Click to expand...</summary>
+  
+  Run:
+  ```bash
+  aws amplify list-backend-environments --app-id=[app_id]
+  ```
+</details>
+
+
 
 ## Inputs
 
@@ -96,8 +134,34 @@ or
 
 <img src="demo.gif" width="80%"/>
 
-## IAM Roles & MFA for AWS Amplify
-* Please see Amplify [IAM Policy](https://docs.amplify.aws/cli/usage/iam#n3-set-up-the-local-development-environment-dev-corp) and [IAM Roles & MFA](https://docs.amplify.aws/cli/usage/iam-roles-mfa) about how to create an AWS Credentials for AWS Amplify
+## AWS access keys & IAM Policy
+* Minimal necessary permissions IAM policy
+  ```
+  {
+      "Version": "2012-10-17",
+      "Statement": [
+          {
+              "Sid": "VisualEditor1",
+              "Effect": "Allow",
+              "Action": "amplify:StartJob",
+              "Resource": "arn:aws:amplify:${Region}:${Account}:apps/{AppId}/branches/*/jobs/*"
+          },
+          {
+              "Sid": "VisualEditor2",
+              "Effect": "Allow",
+              "Action": [
+                  "amplify:DeleteBranch",
+                  "amplify:CreateBranch"
+              ],
+              "Resource": "arn:aws:amplify:${Region}:${Account}:apps/{AppId}/branches/*"
+          }
+      ]
+  }
+  ```
+
+* [How do I create an AWS access key?](https://aws.amazon.com/premiumsupport/knowledge-center/create-access-key/)
+* Amplify [IAM Policy](https://docs.amplify.aws/cli/usage/iam#n3-set-up-the-local-development-environment-dev-corp)
+* Amplify [IAM Roles & MFA](https://docs.amplify.aws/cli/usage/iam-roles-mfa)
 
 ## License
 
